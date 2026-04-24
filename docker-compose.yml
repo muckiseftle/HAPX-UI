@@ -1,0 +1,55 @@
+services:
+  app:
+    build: .
+    container_name: hapx-app
+    restart: always
+    volumes:
+      - ./database:/var/www/html/database
+      - haproxy_config:/etc/haproxy
+      - haproxy_run:/run/haproxy
+    networks:
+      - hapx-network
+
+  web:
+    image: nginx:alpine
+    container_name: hapx-web
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - hapx-network
+    depends_on:
+      - app
+
+  haproxy:
+    image: haproxy:2.9-alpine
+    container_name: hapx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - haproxy_config:/usr/local/etc/haproxy:ro
+      - haproxy_run:/run/haproxy
+    networks:
+      - hapx-network
+    # HAProxy Master-Worker Modus für einfaches Reloading via Socket
+    command: 
+      - haproxy
+      - -f
+      - /usr/local/etc/haproxy/haproxy.cfg
+      - -W
+      - -db
+      - -S
+      - /run/haproxy/admin.sock,level,admin
+
+volumes:
+  haproxy_config:
+  haproxy_run:
+
+networks:
+  hapx-network:
+    driver: bridge

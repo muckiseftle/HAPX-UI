@@ -1,0 +1,14 @@
+/vendor
+/node_modules
+/storage/*.key
+/storage/app/public/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+/.env
+/database/database.sqlite
+/public/build
+/.git
+/.github
