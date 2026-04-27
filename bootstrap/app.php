@@ -21,4 +21,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function ($schedule) {
         $schedule->command('certs:renew')->daily();
+        $schedule->command('hapx:stats')->everyMinute();
     })->create();

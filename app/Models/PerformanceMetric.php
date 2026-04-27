@@ -15,5 +15,8 @@ class PerformanceMetric extends Model
         'bytes_out',
         'requests_per_second',
         'avg_response_ms',
+        'cpu_usage',
+        'ram_usage',
+        'disk_usage',
     ];
 }

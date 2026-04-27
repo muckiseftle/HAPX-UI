@@ -5,8 +5,24 @@
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<div class="flex justify-between items-center mb-8">
+    <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+        <a href="?range=live" class="px-4 py-2 rounded-md text-sm font-medium {{ $range === 'live' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}">Live</a>
+        <a href="?range=24h" class="px-4 py-2 rounded-md text-sm font-medium {{ $range === '24h' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}">24h</a>
+        <a href="?range=7d" class="px-4 py-2 rounded-md text-sm font-medium {{ $range === '7d' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700' }}">7 Tage</a>
+    </div>
+    <div class="flex items-center space-x-2 text-sm text-gray-500">
+        <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span id="update-time">Letztes Update: {{ now()->format('H:i:s') }}</span>
+    </div>
+</div>
+
 <!-- Quick Stats Row -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <!-- Connections -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Live Sitzungen</p>
         <div class="flex items-center justify-between">
@@ -16,6 +32,7 @@
             </div>
         </div>
     </div>
+    <!-- Traffic In -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Traffic In</p>
         <div class="flex items-center justify-between">
@@ -25,22 +42,33 @@
             </div>
         </div>
     </div>
+    <!-- CPU Usage -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Traffic Out</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">CPU Auslastung</p>
         <div class="flex items-center justify-between">
-            <h3 id="stat-bout" class="text-2xl font-bold text-amber-600">0 KB/s</h3>
-            <div class="p-2 bg-amber-50 rounded-lg">
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+            <h3 id="stat-cpu" class="text-2xl font-bold text-blue-600">0%</h3>
+            <div class="p-2 bg-blue-50 rounded-lg">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
             </div>
         </div>
     </div>
+    <!-- RAM Usage -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Status</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">RAM Nutzung</p>
         <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-bold text-gray-800">Online</h3>
-            <div class="flex h-3 w-3 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            <h3 id="stat-ram" class="text-2xl font-bold text-purple-600">0%</h3>
+            <div class="p-2 bg-purple-50 rounded-lg">
+                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+    </div>
+    <!-- Disk Usage -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Disk Nutzung</p>
+        <div class="flex items-center justify-between">
+            <h3 id="stat-disk" class="text-2xl font-bold text-gray-700">0%</h3>
+            <div class="p-2 bg-gray-50 rounded-lg">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
             </div>
         </div>
     </div>
@@ -48,15 +76,27 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-6">Sitzungsverlauf</h2>
+        <h2 class="text-lg font-bold text-gray-800 mb-6">Verbindungen</h2>
         <div class="relative h-64">
             <canvas id="connectionsChart"></canvas>
         </div>
     </div>
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-6">Bandbreite (Live)</h2>
+        <h2 class="text-lg font-bold text-gray-800 mb-6">Bandbreite</h2>
         <div class="relative h-64">
             <canvas id="trafficChart"></canvas>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-6">System Auslastung (%)</h2>
+        <div class="relative h-64">
+            <canvas id="systemChart"></canvas>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-6">Festplattenbelegung (%)</h2>
+        <div class="relative h-64">
+            <canvas id="diskChart"></canvas>
         </div>
     </div>
 </div>
@@ -136,6 +176,29 @@
             ]
         },
         options: baseOptions
+    });
+
+    const systemChart = new Chart(document.getElementById('systemChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($labels) !!},
+            datasets: [
+                { label: 'CPU', data: {!! json_encode($cpu) !!}, borderColor: '#3b82f6', borderWidth: 3, pointRadius: 0, tension: 0.4 },
+                { label: 'RAM', data: {!! json_encode($ram) !!}, borderColor: '#a855f7', borderWidth: 3, pointRadius: 0, tension: 0.4 }
+            ]
+        },
+        options: { ...baseOptions, scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, max: 100 } } }
+    });
+
+    const diskChart = new Chart(document.getElementById('diskChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($labels) !!},
+            datasets: [
+                { label: 'Disk', data: {!! json_encode($disk) !!}, borderColor: '#64748b', borderWidth: 3, pointRadius: 0, tension: 0.4 }
+            ]
+        },
+        options: { ...baseOptions, scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, max: 100 } } }
     });
 
     function formatBytes(bytes) {
@@ -236,21 +299,26 @@
     }
 
     async function updateLiveStats() {
+        if ("{{ $range }}" !== "live") return;
+
         try {
             const response = await fetch('{{ route('monitoring.live') }}');
             lastData = await response.json();
 
             document.getElementById('stat-conn').textContent = lastData.stats.connections;
             document.getElementById('stat-bin').textContent = formatBytes(lastData.stats.bin);
-            document.getElementById('stat-bout').textContent = formatBytes(lastData.stats.bout);
+            document.getElementById('stat-cpu').textContent = lastData.system.cpu + '%';
+            document.getElementById('stat-ram').textContent = lastData.system.ram + '%';
+            document.getElementById('stat-disk').textContent = lastData.system.disk + '%';
+            document.getElementById('update-time').textContent = 'Letztes Update: ' + lastData.time;
 
             const maxPoints = 30;
-            connectionsChart.data.labels.push(lastData.time);
-            trafficChart.data.labels.push(lastData.time);
-            if (connectionsChart.data.labels.length > maxPoints) {
-                connectionsChart.data.labels.shift();
-                trafficChart.data.labels.shift();
-            }
+            
+            // Update charts
+            [connectionsChart, trafficChart, systemChart, diskChart].forEach(chart => {
+                chart.data.labels.push(lastData.time);
+                if (chart.data.labels.length > maxPoints) chart.data.labels.shift();
+            });
 
             connectionsChart.data.datasets[0].data.push(lastData.stats.connections);
             if (connectionsChart.data.datasets[0].data.length > maxPoints) connectionsChart.data.datasets[0].data.shift();
@@ -262,8 +330,17 @@
                 trafficChart.data.datasets[1].data.shift();
             }
 
-            connectionsChart.update('none');
-            trafficChart.update('none');
+            systemChart.data.datasets[0].data.push(lastData.system.cpu);
+            systemChart.data.datasets[1].data.push(lastData.system.ram);
+            if (systemChart.data.datasets[0].data.length > maxPoints) {
+                systemChart.data.datasets[0].data.shift();
+                systemChart.data.datasets[1].data.shift();
+            }
+
+            diskChart.data.datasets[0].data.push(lastData.system.disk);
+            if (diskChart.data.datasets[0].data.length > maxPoints) diskChart.data.datasets[0].data.shift();
+
+            [connectionsChart, trafficChart, systemChart, diskChart].forEach(chart => chart.update('none'));
 
             document.getElementById('session-count').textContent = `${lastData.sessions.length} Sitzungen aktiv`;
             renderTable();
@@ -271,7 +348,9 @@
         } catch (e) { console.error("Update failed", e); }
     }
 
-    setInterval(updateLiveStats, 2000);
+    if ("{{ $range }}" === "live") {
+        setInterval(updateLiveStats, 2000);
+    }
 </script>
 
 <style>
