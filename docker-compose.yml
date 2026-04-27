@@ -1,6 +1,6 @@
 services:
   hapx-ui:
-    build: .
+    build: https://github.com/muckiseftle/HAPX-UI.git#main
     container_name: hapx-ui
     restart: always
     ports:
